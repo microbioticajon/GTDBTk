@@ -187,7 +187,9 @@ class Markers(object):
                             self.protein_file_suffix,
                             self.nt_gene_file_suffix,
                             self.gff_file_suffix,
-                            force)
+                            force,
+                            Config.TMP_DIR
+                           )
         self.logger.log(Config.LOG_TASK, f'Running Prodigal {prodigal.version} to identify genes.')
         genome_dictionary = prodigal.run(genomes, tln_tables)
 
