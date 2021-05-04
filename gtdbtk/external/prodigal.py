@@ -37,7 +37,8 @@ class Prodigal(object):
                  protein_file_suffix,
                  nt_gene_file_suffix,
                  gff_file_suffix,
-                 force):
+                 force,
+                 tmp_dir=None):
         """Initialize."""
 
         self.logger = logging.getLogger('timestamp')
@@ -51,6 +52,7 @@ class Prodigal(object):
         self.gff_file_suffix = gff_file_suffix
         self.force = force
         self.version = self._get_version()
+        self.tmp_dir = tmp_dir
 
     def _get_version(self):
         try:
@@ -94,7 +96,7 @@ class Prodigal(object):
             return aa_gene_file, nt_gene_file, gff_file, tln_table_file.path, tln_table_file.best_tln_table, True
 
         # Run Prodigal
-        prodigal = BioLibProdigal(1, False)
+        prodigal = BioLibProdigal(1, False, tmp_dir_base=self.tmp_dir)
         summary_stats = prodigal.run([fasta_path], output_dir,
                                      called_genes=False,
                                      translation_table=usr_tln_table)
