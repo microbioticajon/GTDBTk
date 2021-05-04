@@ -144,7 +144,7 @@ class Prodigal(object):
                             subprocess.run(
                                 [
                                     'prodigal',
-                                    args*,
+                                    *args,
                                     '-p', proc_str,
                                     '-q', 
                                     '-f', 'gff',
