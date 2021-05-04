@@ -27,6 +27,7 @@ import ntpath
 import os
 import shutil
 import tempfile
+import subprocess
 from collections import defaultdict, namedtuple
 
 import numpy as np
@@ -40,7 +41,7 @@ from .seq_io import read_fasta, write_fasta
 class Prodigal(object):
     """Wrapper for running Prodigal in parallel."""
 
-    def __init__(self, cpus, verbose=True):
+    def __init__(self, cpus, verbose=True, tmp_dir_base=None):
         """Initialization.
 
         Parameters
@@ -49,6 +50,8 @@ class Prodigal(object):
             Number of cpus to use.
         verbose : boolean
             Flag indicating if progress should be reported.
+        tmp_dir_base : str
+            Base directory to stage tmp files (default: None).
         """
 
         self.logger = logging.getLogger('timestamp')
@@ -57,6 +60,7 @@ class Prodigal(object):
 
         self.cpus = cpus
         self.verbose = verbose
+        
 
     def _producer(self, genome_file):
         """Apply prodigal to genome with most suitable translation table.
@@ -86,7 +90,7 @@ class Prodigal(object):
                                     'Skipped: {}'.format(genome_file))
                 return None
 
-            with tempfile.TemporaryDirectory('gtdbtk_prodigal_tmp_') as tmp_dir:
+            with tempfile.TemporaryDirectory('gtdbtk_prodigal_tmp_', dir=self.tmp_dir_base) as tmp_dir:
 
                 # determine number of bases
                 total_bases = 0
@@ -134,14 +138,28 @@ class Prodigal(object):
                     if self.closed_ends:
                         args += ' -c'
 
-                    cmd = 'prodigal %s -p %s -q -f gff -g %d -a %s -d %s -i %s > %s 2> /dev/null' % (args,
-                                                                                                     proc_str,
-                                                                                                     translation_table,
-                                                                                                     aa_gene_file_tmp,
-                                                                                                     nt_gene_file_tmp,
-                                                                                                     processed_prodigal_input,
-                                                                                                     gff_file_tmp)
-                    os.system(cmd)
+                    try:
+                        with open(gff_file_tmp,'w+') as fout:
+                            subprocess.run(
+                                [
+                                    'prodigal',
+                                    args*,
+                                    '-p', proc_str,
+                                    '-q', 
+                                    '-f', 'gff',
+                                    '-g', str(translation_table),
+                                    '-a', aa_gene_file_tmp,
+                                    '-d', nt_gene_file_tmp,
+                                    '-i', processed_prodigal_input
+                                ],
+                                capture_output=True,
+                                stdout=fout,
+                                check=True,
+                            )
+                    except subprocess.CalledProcessError, e:
+                        self.logger.error(e.stderr)
+                        # Would be neater to throw the exception here but doing so would change how clean-up is handled downstream.
+                        # raise e
 
                     # determine coding density
                     prodigalParser = ProdigalGeneFeatureParser(gff_file_tmp)
@@ -233,7 +251,8 @@ class Prodigal(object):
             called_genes=False,
             translation_table=None,
             meta=False,
-            closed_ends=False):
+            closed_ends=False
+            tmp_dir_base=None):
         """Call genes with Prodigal.
 
         Call genes with prodigal and store the results in the
