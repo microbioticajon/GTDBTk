@@ -18,6 +18,26 @@ except KeyError:
     sys.exit(1)
 
 """
+Set the base tmp dir if the user has set one.
+"""
+TMP_PATH = os.getenv('GTDBTK_TMP_PATH')
+if TMP_PATH:
+    if not os.path.isdir(TMP_PATH):
+        print('\n' + '=' * 80)
+        print(' ERROR '.center(80))
+        print('_' * 80 + '\n')
+        print("The 'GTDBTK_TMP_PATH' environment variable is not a directory.".center(80) + '\n')
+        print('=' * 80)
+    sys.exit(1)
+    if not os.path.exists(TMP_PATH):
+        print('\n' + '=' * 80)
+        print(' ERROR '.center(80))
+        print('_' * 80 + '\n')
+        print("The 'GTDBTK_TMP_PATH' environment variable does not exist.".center(80) + '\n')
+        print('=' * 80)
+    sys.exit(1)
+
+"""
 If the reference package sub-folders still exist in GTDBTK_DATA_PATH, then there
 is no need to edit the variables below.
 """
