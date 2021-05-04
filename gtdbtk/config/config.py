@@ -28,14 +28,14 @@ if TMP_PATH:
         print('_' * 80 + '\n')
         print("The 'GTDBTK_TMP_PATH' environment variable is not a directory.".center(80) + '\n')
         print('=' * 80)
-    sys.exit(1)
+        sys.exit(1)
     if not os.path.exists(TMP_PATH):
         print('\n' + '=' * 80)
         print(' ERROR '.center(80))
         print('_' * 80 + '\n')
         print("The 'GTDBTK_TMP_PATH' environment variable does not exist.".center(80) + '\n')
         print('=' * 80)
-    sys.exit(1)
+        sys.exit(1)
 
 """
 If the reference package sub-folders still exist in GTDBTK_DATA_PATH, then there
