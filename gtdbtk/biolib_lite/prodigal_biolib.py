@@ -60,6 +60,7 @@ class Prodigal(object):
 
         self.cpus = cpus
         self.verbose = verbose
+        self.tmp_dir_base = tmp_dir_base
         
 
     def _producer(self, genome_file):
@@ -251,8 +252,7 @@ class Prodigal(object):
             called_genes=False,
             translation_table=None,
             meta=False,
-            closed_ends=False
-            tmp_dir_base=None):
+            closed_ends=False):
         """Call genes with Prodigal.
 
         Call genes with prodigal and store the results in the
